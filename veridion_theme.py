@@ -77,7 +77,7 @@ def apply_theme():
             padding: 1.5rem 1rem;
         }}
 
-        /* ── VERIDION PRO TITLE - Added at top of sidebar ─────────────── */
+        /* ── VERIDION PRO TITLE (Top of Sidebar) ──────────────────────── */
         .veridion-sidebar-title {{
             font-size: 1.85rem !important;
             font-weight: 800 !important;
@@ -87,6 +87,11 @@ def apply_theme():
             padding-bottom: 0.75rem !important;
             border-bottom: 2px solid {GREEN} !important;
             display: block;
+        }}
+
+        /* Prevent multiple titles on Streamlit Cloud reruns */
+        .veridion-sidebar-title + .veridion-sidebar-title {{
+            display: none !important;
         }}
 
         /* ── Sidebar text ─────────────────────────────────────────────── */
@@ -448,7 +453,7 @@ def apply_theme():
             border-color: {GREEN} !important;
         }}
 
-        /* ── All buttons ──────────────────────────────────────────────── */
+        /* ── All buttons — broad catch (sidebar overrides below) ─────── */
         button[kind],
         .stButton > button,
         [data-testid="stButton"] > button,
