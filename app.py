@@ -1,183 +1,138 @@
-# app.py
-
 import streamlit as st
 import sys
 import traceback
-# ----------------------------------
-# 🔥 MUST BE FIRST STREAMLIT CALL
-# ----------------------------------
+
+# =============================================
+# MUST BE FIRST
+# =============================================
 st.set_page_config(
     page_title="CUI Mail Monitor",
     page_icon="🛡️",
     layout="wide",
 )
 
+from veridion_theme import apply_theme
+apply_theme()
 
-try:
-    import slack_bolt
-    print("✅ slack_bolt OK")
-except Exception:
-    traceback.print_exc()
+# ====================== SIDEBAR ======================
+with st.sidebar:
+    # Veridion Pro Title - Force show every time (session_state was too sticky)
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
-try:
-    import slack_sdk
-    print("✅ slack_sdk OK")
-except Exception:
-    traceback.print_exc()
+    # User Role
+    if "user_role" not in st.session_state:
+        st.session_state["user_role"] = "ANALYST"
+    st.selectbox("User Role", ["ANALYST", "SENIOR_ANALYST", "MANAGER", "ADMIN"], key="user_role")
 
-try:
-    import google_auth_oauthlib
-    print("✅ google_auth_oauthlib OK")
-except Exception:
-    traceback.print_exc()
-# ----------------------------------
-# 🔥 NOW SAFE TO IMPORT EVERYTHING
-# ----------------------------------
+    # Worker Controls
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🛑 Stop Workers"):
+            from core.scan.worker import stop_scan_workers
+            stop_scan_workers(st.session_state.get("storage"))
+            st.session_state["workers_running"] = False
+    with col2:
+        if st.button("🚀 Start Workers"):
+            from core.scan.worker import start_scan_workers
+            st.session_state["storage"].stop_workers = False
+            start_scan_workers(st.session_state["storage"])
+            st.session_state["workers_running"] = True
 
-# UI pages
-from core.ui.demo_page import render_demo_page
-from core.ui.evidence_viewer import render_evidence_viewer
-from core.ui.metrics_page import render_metrics_page
-from core.ui.supervisor_dashboard import render_supervisor_dashboard
-from core.ui.trust_center_page import render_trust_center_page
-from core.ui.admin_alerts_page import render_alert_settings_page
-from core.ui.investigation_page import render_investigation_page
-from core.ui.alert_center_page import render_alert_center_page
-from core.ui.scan_page import render_scan_page
-from core.ui.admin_page import render_admin_page
-from core.ui.case_dashboard_page import render_case_dashboard
-from core.ui.help_page import render_help_page
-from core.ui.sla_dashboard_page import render_sla_dashboard_page
-# Core services
-from core.storage.factory import build_storage
-from core.scan.worker import start_scan_workers, stop_scan_workers
+    st.divider()
 
-import threading
-# ----------------------------------
-# 🔥 GLOBAL STORAGE (ALWAYS AVAILABLE)
-# ----------------------------------
+    if st.button("📘 Help / How To"):
+        st.session_state["page"] = "Help Center"
+        st.rerun()
+
+    # Navigation
+    st.title("Navigation")
+
+    PAGES = [
+        "Scan",
+        "Live Forensic Demo",
+        "Evidence Viewer",
+        "Metrics",
+        "Supervisor Dashboard",
+        "Trust Center",
+        "Alert Settings",
+        "Alert Center",
+        "Investigation Workspace",
+        "Cases",
+        "Admin",
+        "Help Center",
+    ]
+
+    if "page" not in st.session_state:
+        st.session_state["page"] = "Scan"
+
+    selected = st.radio(
+        "Go to",
+        PAGES,
+        index=PAGES.index(st.session_state["page"]),
+        label_visibility="collapsed"
+    )
+
+    if selected != st.session_state["page"]:
+        st.session_state["page"] = selected
+        st.rerun()
+
+# =============================================
+# STORAGE & WORKERS
+# =============================================
 if "storage" not in st.session_state:
+    from core.storage.factory import build_storage
     st.session_state["storage"] = build_storage()
 
-    # 🔥 INIT DB PRAGMAS ONCE
-    try:
-        with st.session_state["storage"].ledger._connect() as con:
-
-            st.session_state["storage"].ledger._set_pragmas_once(con)
-
-            con.commit()
-
-        print("✅ SQLite WAL initialized")
-
-    except Exception as e:
-        print("⚠️ WAL init failed:", e)
-
 storage = st.session_state["storage"]
-# ----------------------------------
-# 🚀 START WORKERS (ONCE)
-# ----------------------------------
+
 if "workers_started" not in st.session_state or not st.session_state.get("workers_running", False):
-    storage.stop_workers = False  # 🔥 CRITICAL RESET
+    from core.scan.worker import start_scan_workers
+    storage.stop_workers = False
     start_scan_workers(storage)
     st.session_state["workers_started"] = True
     st.session_state["workers_running"] = True
 
-# ----------------------------------
-# 🎯 USER ROLE
-# ----------------------------------
+# =============================================
+# PAGE ROUTER
+# =============================================
+page = st.session_state["page"]
 
-if "user_role" not in st.session_state:
-    st.session_state["user_role"] = "ANALYST"
-
-st.sidebar.selectbox(
-    "User Role",
-    ["ANALYST", "SENIOR_ANALYST", "MANAGER", "ADMIN"],
-    key="user_role"
-)
-if st.sidebar.button("🛑 Stop Workers"):
-    stop_scan_workers(storage)
-    st.session_state["workers_running"] = False
-
-if st.sidebar.button("🚀 Start Workers"):
-    storage.stop_workers = False
-    start_scan_workers(storage)
-    st.session_state["workers_running"] = True
-
-st.sidebar.divider()
-
-if st.sidebar.button("📘 Help / How To"):
-    st.session_state["page"] = "Help Center"
-    st.rerun()
-# ---------------------------
-# SIDEBAR NAVIGATION
-# ---------------------------
-st.sidebar.title("Navigation")
-
-PAGES = [
-    "Live Forensic Demo",
-    "Admin",
-    "Scan",
-    "Evidence Viewer",
-    "Metrics",
-    "Supervisor Dashboard",
-    "Trust Center",
-    "Alert Settings",
-    "Alert Center",
-    "Investigation Workspace",
-    "Cases",
-    "Help Center",
-]
-
-# 🔥 Initialize
-if "page" not in st.session_state:
-    st.session_state["page"] = "Scan"
-
-# 🔥 Use session state as source of truth
-page = st.sidebar.radio(
-    "Go to",
-    PAGES,
-    index=PAGES.index(st.session_state["page"])
-)
-
-# 🔥 ONLY update if user manually changed it
-if page != st.session_state["page"]:
-    st.session_state["page"] = page
-
-# ---------------------------
-# ROUTER
-# ---------------------------
-if page == "Live Forensic Demo":
-    render_demo_page(storage)
-
-elif page == "Admin":
-    render_admin_page(storage)
-
-elif page == "Scan":
+if page == "Scan":
+    from core.ui.scan_page import render_scan_page
     render_scan_page(storage)
-
 elif page == "Evidence Viewer":
+    from core.ui.evidence_viewer import render_evidence_viewer
     render_evidence_viewer(storage)
-
 elif page == "Metrics":
+    from core.ui.metrics_page import render_metrics_page
     render_metrics_page(storage)
-
 elif page == "Supervisor Dashboard":
+    from core.ui.supervisor_dashboard import render_supervisor_dashboard
     render_supervisor_dashboard(storage)
-
 elif page == "Trust Center":
+    from core.ui.trust_center_page import render_trust_center_page
     render_trust_center_page(storage)
-
 elif page == "Alert Settings":
+    from core.ui.admin_alerts_page import render_alert_settings_page
     render_alert_settings_page(storage)
-
 elif page == "Alert Center":
+    from core.ui.alert_center_page import render_alert_center_page
     render_alert_center_page(storage)
-
 elif page == "Investigation Workspace":
+    from core.ui.investigation_page import render_investigation_page
     render_investigation_page(storage)
-
 elif page == "Cases":
-     render_case_dashboard(storage)
-
+    from core.ui.case_dashboard_page import render_case_dashboard
+    render_case_dashboard(storage)
+elif page == "Admin":
+    from core.ui.admin_page import render_admin_page
+    render_admin_page(storage)
+elif page == "Live Forensic Demo":
+    from core.ui.demo_page import render_demo_page
+    render_demo_page(storage)
 elif page == "Help Center":
+    from core.ui.help_page import render_help_page
     render_help_page(storage)
+else:
+    from core.ui.scan_page import render_scan_page
+    render_scan_page(storage)
