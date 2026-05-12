@@ -10,7 +10,94 @@ st.set_page_config(
     page_icon="🛡️",
     layout="wide",
 )
+# =========================================================
+# 📱 MOBILE FLOATING NAV
+# =========================================================
 
+PAGES = [
+    "Scan",
+    "Evidence",
+    "Alerts",
+    "Cases",
+    "Admin",
+]
+
+PAGE_MAP = {
+    "Scan": "Scan",
+    "Evidence": "Evidence Viewer",
+    "Alerts": "Alert Center",
+    "Cases": "Cases",
+    "Admin": "Admin",
+}
+
+# ---------------------------------------------------------
+# DEFAULT PAGE
+# ---------------------------------------------------------
+
+if "page" not in st.session_state:
+    st.session_state["page"] = "Scan"
+
+# ---------------------------------------------------------
+# FLOATING MOBILE NAV CSS
+# ---------------------------------------------------------
+
+st.markdown("""
+<style>
+
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    z-index: 999999;
+
+    background: #0b1220;
+
+    border-top: 1px solid #333;
+
+    display: flex;
+    justify-content: space-around;
+
+    padding: 0.5rem;
+}
+
+.mobile-nav button {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@media (min-width: 768px) {
+    .mobile-nav {
+        display: none;
+    }
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# MOBILE NAV
+# ---------------------------------------------------------
+
+mobile_page = st.radio(
+    "Mobile Navigation",
+    PAGES,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="mobile_nav_bar"
+)
+
+mapped_page = PAGE_MAP[mobile_page]
+
+if mapped_page != st.session_state["page"]:
+
+    st.session_state["page"] = mapped_page
+
+    st.rerun()
 from veridion_theme import apply_theme
 apply_theme()
 
