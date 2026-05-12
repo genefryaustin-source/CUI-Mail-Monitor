@@ -16,6 +16,15 @@ from core.services.imap_service import connect_imap
 
 from veridion_theme import apply_theme
 apply_theme()
+
+# Use this block to show title only once
+if "title_shown" not in st.session_state:
+    st.session_state.title_shown = False
+
+with st.sidebar:
+    if not st.session_state.title_shown:
+        st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
+        st.session_state.title_shown = True
 st.subheader("System Status")
 
 if shutil.which("ots"):
@@ -403,3 +412,171 @@ def render_admin_page(storage):
     if st.button("📚 Seed Response Playbooks"):
         seed_playbooks(storage)
         st.success("Playbooks seeded.")
+
+    # =========================================================
+    # 🧹 SCAN QUEUE CLEANUP
+    # =========================================================
+
+    st.divider()
+    st.subheader("🧹 Scan Queue Cleanup")
+
+    ledger = storage.ledger
+
+    # ---------------------------------------------------------
+    # LOAD QUEUE
+    # ---------------------------------------------------------
+
+    jobs = []
+
+    try:
+        jobs = ledger.list_scan_jobs(limit=500)
+    except Exception as e:
+        st.error(f"Failed loading queue: {e}")
+
+    if not jobs:
+        st.info("No scan jobs found.")
+        return
+
+    df = pd.DataFrame(jobs)
+
+    # ---------------------------------------------------------
+    # FILTERS
+    # ---------------------------------------------------------
+
+    statuses = st.multiselect(
+        "Filter Status",
+        options=sorted(df["status"].dropna().unique()),
+        default=["FAILED", "CANCELLED"]
+    )
+
+    show_empty_only = st.checkbox(
+        "Show Empty Jobs Only",
+        value=False
+    )
+
+    show_stale_only = st.checkbox(
+        "Show Stale Jobs (>1 hour old)",
+        value=False
+    )
+
+    # ---------------------------------------------------------
+    # FILTER LOGIC
+    # ---------------------------------------------------------
+
+    if statuses:
+        df = df[df["status"].isin(statuses)]
+
+    now_ms = int(time.time() * 1000)
+
+    if show_stale_only and "updated_at_ms" in df.columns:
+        df = df[
+            (now_ms - df["updated_at_ms"]) > 3600_000
+            ]
+
+    if show_empty_only:
+        def is_empty(row):
+            return (
+                    (row.get("progress_total", 0) == 0)
+                    and
+                    (row.get("progress_current", 0) == 0)
+                    and
+                    not row.get("run_id")
+            )
+
+        df = df[df.apply(is_empty, axis=1)]
+
+    # ---------------------------------------------------------
+    # DISPLAY
+    # ---------------------------------------------------------
+
+    st.dataframe(
+        df[
+            [
+                "id",
+                "status",
+                "provider",
+                "mailbox",
+                "attempts",
+                "last_error",
+                "created_at_ms",
+            ]
+        ],
+        use_container_width=True
+    )
+
+    # ---------------------------------------------------------
+    # BULK ACTIONS
+    # ---------------------------------------------------------
+
+    selected_jobs = st.multiselect(
+        "Select Jobs",
+        options=df["id"].tolist()
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    # ---------------------------------------------------------
+    # DELETE
+    # ---------------------------------------------------------
+
+    with col1:
+
+        if st.button(
+                "🗑️ Delete Selected Jobs",
+                type="primary"
+        ):
+
+            deleted = 0
+
+            for job_id in selected_jobs:
+
+                try:
+                    ledger.delete_scan_job(job_id)
+                    deleted += 1
+
+                except Exception as e:
+                    st.error(f"{job_id}: {e}")
+
+            st.success(f"Deleted {deleted} jobs")
+
+    # ---------------------------------------------------------
+    # RETRY
+    # ---------------------------------------------------------
+
+    with col2:
+
+        if st.button("🔁 Retry Failed Jobs"):
+
+            retried = 0
+
+            for job_id in selected_jobs:
+
+                try:
+                    ledger.retry_failed_scan(job_id)
+                    retried += 1
+
+                except Exception as e:
+                    st.error(f"{job_id}: {e}")
+
+            st.success(f"Retried {retried} jobs")
+
+    # ---------------------------------------------------------
+    # CANCEL
+    # ---------------------------------------------------------
+
+    with col3:
+
+        if st.button("⛔ Cancel Selected Jobs"):
+
+            cancelled = 0
+
+            for job_id in selected_jobs:
+
+                try:
+                    ledger.cancel_scan_job(job_id)
+                    cancelled += 1
+
+                except Exception as e:
+                    st.error(f"{job_id}: {e}")
+
+            st.success(f"Cancelled {cancelled} jobs")
