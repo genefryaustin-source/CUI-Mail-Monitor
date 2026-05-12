@@ -304,7 +304,7 @@ def apply_theme():
         }}
 
         /* Hide Streamlit branding */
-        #MainMenu, footer, header {{ visibility: hidden; }}
+        #MainMenu, footer {{ visibility: hidden; }}
         </style>
         """,
         unsafe_allow_html=True,
