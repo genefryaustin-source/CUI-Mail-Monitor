@@ -10,25 +10,7 @@ st.set_page_config(
     page_icon="🛡️",
     layout="wide",
 )
-# =========================================================
-# 📱 MOBILE FLOATING NAV
-# =========================================================
 
-PAGES = [
-    "Scan",
-    "Evidence",
-    "Alerts",
-    "Cases",
-    "Admin",
-]
-
-PAGE_MAP = {
-    "Scan": "Scan",
-    "Evidence": "Evidence Viewer",
-    "Alerts": "Alert Center",
-    "Cases": "Cases",
-    "Admin": "Admin",
-}
 
 # ---------------------------------------------------------
 # DEFAULT PAGE
@@ -43,6 +25,14 @@ if "page" not in st.session_state:
 from veridion_theme import apply_theme
 apply_theme()
 
+# Use this block to show title only once
+if "title_shown" not in st.session_state:
+    st.session_state.title_shown = False
+
+with st.sidebar:
+    if not st.session_state.title_shown:
+        st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
+        st.session_state.title_shown = True
 # ====================== SIDEBAR ======================
 with st.sidebar:
     # Veridion Pro Title - Force show every time (session_state was too sticky)
