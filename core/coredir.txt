@@ -1,0 +1,23 @@
+ Volume in drive C is Windows
+ Volume Serial Number is 9A09-E4F0
+
+ Directory of C:\cui_mail_monitor\core
+
+02/05/2026  05:34 PM    <DIR>          .
+02/05/2026  05:33 PM    <DIR>          ..
+02/05/2026  06:13 AM    <DIR>          classify
+02/05/2026  05:34 PM                 0 coredir.txt
+02/04/2026  09:06 AM    <DIR>          db
+02/04/2026  09:06 AM             1,338 email_ingest.py
+02/05/2026  06:22 AM    <DIR>          evidence
+02/05/2026  06:21 AM    <DIR>          export
+02/04/2026  09:06 AM    <DIR>          extract
+02/05/2026  09:49 AM    <DIR>          ingest
+02/04/2026  01:38 PM    <DIR>          pipeline
+02/05/2026  05:58 AM             2,804 process.py
+02/04/2026  01:28 PM    <DIR>          storage
+02/05/2026  09:38 AM    <DIR>          utils
+02/04/2026  09:06 AM                 0 __init__.py
+02/05/2026  07:34 AM    <DIR>          __pycache__
+               4 File(s)          4,142 bytes
+              12 Dir(s)  1,249,229,127,680 bytes free
