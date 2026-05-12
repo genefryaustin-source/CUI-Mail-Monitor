@@ -7,7 +7,7 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import os
-
+import streamlit as st
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
@@ -71,7 +71,27 @@ def run_oauth_flow_and_store(storage, mailbox: str):
 
     print(f"🔥 Starting OAuth for mailbox: {mailbox}")
 
-    flow = InstalledAppFlow.from_client_secrets_file("client_secret.json", SCOPES)
+
+
+    client_config = {
+        "web": {
+            "client_id": st.secrets["gmail_oauth"]["client_id"],
+            "project_id": st.secrets["gmail_oauth"]["project_id"],
+            "auth_uri": st.secrets["gmail_oauth"]["auth_uri"],
+            "token_uri": st.secrets["gmail_oauth"]["token_uri"],
+            "auth_provider_x509_cert_url":
+                st.secrets["gmail_oauth"]["auth_provider_x509_cert_url"],
+            "client_secret":
+                st.secrets["gmail_oauth"]["client_secret"],
+            "redirect_uris":
+                st.secrets["gmail_oauth"]["redirect_uris"],
+        }
+    }
+
+    flow = InstalledAppFlow.from_client_config(
+        client_config,
+        SCOPES
+    )
 
     creds = flow.run_local_server(
         host="127.0.0.1",
