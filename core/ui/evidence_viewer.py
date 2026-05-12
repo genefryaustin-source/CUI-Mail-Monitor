@@ -20,6 +20,10 @@ from core.classify.detect import detect_cui
 from core.evidence.query import build_query_service
 from core.utils.hash_utils import sha256_bytes_hex
 
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
 # ----------------------------
 # HELPERS

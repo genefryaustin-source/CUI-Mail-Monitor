@@ -1,6 +1,10 @@
 import streamlit as st
 
 from pathlib import Path
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
 def render_markdown_help(path):
     p = Path(path)

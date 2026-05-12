@@ -1,5 +1,11 @@
 import streamlit as st
+
+from veridion_theme import apply_theme
+apply_theme()
+
 from core.supervisor.system_supervisor import SystemSupervisor
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
 
 def render_supervisor_dashboard(storage):

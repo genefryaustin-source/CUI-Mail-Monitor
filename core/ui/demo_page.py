@@ -2,6 +2,10 @@ import streamlit as st
 from core.demo.demo_dataset import build_demo_dataset
 from core.evidence.service import EvidenceService
 
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
 def render_demo_page(storage):
     st.title("🎬 Live Forensic Demo")

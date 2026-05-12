@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import streamlit as st
 from typing import Any
-
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
 def render_supervisor_controls(storage: Any) -> None:
     ledger = storage.ledger

@@ -6,6 +6,12 @@ import os
 from core.services.case_export_service import export_case_bundle
 from core.ui.help_page import render_markdown_help
 from core.utils.text_extraction import extract_text_from_bytes
+
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
+
 # ----------------------------
 # Visual / intelligence mappings
 # ----------------------------

@@ -14,7 +14,8 @@ from core.ingest.gmail_client import run_oauth_flow_and_store
 from core.utils.hash_utils import sha256_file_hex
 from core.services.imap_service import connect_imap
 
-
+from veridion_theme import apply_theme
+apply_theme()
 st.subheader("System Status")
 
 if shutil.which("ots"):

@@ -6,6 +6,13 @@ import json
 from typing import Any
 from streamlit_autorefresh import st_autorefresh
 import time
+
+
+from veridion_theme import apply_theme
+apply_theme()
+with st.sidebar:
+    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
+
 def compute_case_metrics(storage):
 
 
