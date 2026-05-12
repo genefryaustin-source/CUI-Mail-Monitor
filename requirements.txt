@@ -1,5 +1,7 @@
-streamlit==1.31.1
-
+streamlit>=1.44.0
+pillow>=11.1.0
+pandas>=2.2.0
+numpy>=1.26.0
 # PDF parsing: pure-python
 pypdf==4.0.2
 
