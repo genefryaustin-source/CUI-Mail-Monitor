@@ -1,4 +1,5 @@
 streamlit>=1.44.0
+streamlit-autorefresh>=1.0.1
 pillow>=11.1.0
 pandas>=2.2.0
 numpy>=1.26.0
@@ -12,8 +13,8 @@ google-auth-oauthlib==1.2.0
 google-api-python-client==2.118.0
 requests==2.31.0
 google-auth-httplib2
-
-
+slack-sdk>=3.35.0
+slack-bolt>=1.23.0
 # Data / exports
 python-dateutil==2.9.0.post0
 
