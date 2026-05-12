@@ -519,7 +519,7 @@ def render_admin_page(storage):
 
     selected_jobs = st.multiselect(
         "Select Jobs",
-        options=df["id"].tolist()
+        options=[str(x) for x in df["id"].tolist()]
     )
 
     col1, col2, col3 = st.columns(3)
@@ -535,18 +535,45 @@ def render_admin_page(storage):
                 type="primary"
         ):
 
+            # ---------------------------------------------
+            # SAFETY
+            # ---------------------------------------------
+
+            if not selected_jobs:
+                st.warning("Select at least one job.")
+                st.stop()
+
             deleted = 0
+
+            # ---------------------------------------------
+            # DELETE LOOP
+            # ---------------------------------------------
 
             for job_id in selected_jobs:
 
                 try:
-                    ledger.delete_scan_job(job_id)
+
+                    # 🔥 FORCE INTEGER
+                    job_id_int = int(job_id)
+
+                    print(f"🗑️ DELETE REQUEST: {job_id_int}")
+
+                    ledger.delete_scan_job(job_id_int)
+
                     deleted += 1
 
                 except Exception as e:
+
                     st.error(f"{job_id}: {e}")
 
+            # ---------------------------------------------
+            # SUCCESS
+            # ---------------------------------------------
+
             st.success(f"Deleted {deleted} jobs")
+
+            # 🔥 FORCE UI REFRESH
+            st.rerun()
 
     # ---------------------------------------------------------
     # RETRY
