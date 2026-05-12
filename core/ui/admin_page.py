@@ -516,28 +516,50 @@ def render_admin_page(storage):
     # ---------------------------------------------------------
     # BULK ACTIONS
     # ---------------------------------------------------------
+    # =========================================================
+    # JOB SELECTION
+    # =========================================================
+
+    job_options = [
+        str(x) for x in df["id"].tolist()
+    ]
+
+    select_all_jobs = st.checkbox(
+        "Select All Jobs",
+        value=False,
+        key="select_all_jobs_checkbox"
+    )
+
+    default_selected_jobs = (
+        job_options if select_all_jobs else []
+    )
 
     selected_jobs = st.multiselect(
         "Select Jobs",
-        options=[str(x) for x in df["id"].tolist()]
+        options=job_options,
+        default=default_selected_jobs,
+        key="selected_scan_jobs"
     )
 
     col1, col2, col3 = st.columns(3)
 
     # ---------------------------------------------------------
-    # DELETE
+    # ACTION BUTTONS
     # ---------------------------------------------------------
+
+    col1, col2, col3 = st.columns(3)
+
+    # =========================================================
+    # DELETE
+    # =========================================================
 
     with col1:
 
         if st.button(
                 "🗑️ Delete Selected Jobs",
-                type="primary"
+                type="primary",
+                key="delete_selected_jobs_btn"
         ):
-
-            # ---------------------------------------------
-            # SAFETY
-            # ---------------------------------------------
 
             if not selected_jobs:
                 st.warning("Select at least one job.")
@@ -545,74 +567,97 @@ def render_admin_page(storage):
 
             deleted = 0
 
-            # ---------------------------------------------
-            # DELETE LOOP
-            # ---------------------------------------------
-
             for job_id in selected_jobs:
 
                 try:
 
-                    # 🔥 FORCE INTEGER
                     job_id_int = int(job_id)
 
-                    print(f"🗑️ DELETE REQUEST: {job_id_int}")
+                    print(f"🗑️ DELETE PROCESSING JOB: {job_id_int}")
 
-                    ledger.delete_scan_job(job_id_int)
+                    deleted_rows = ledger.delete_scan_job(
+                        job_id_int
+                    )
 
-                    deleted += 1
+                    print(f"✅ Rows deleted: {deleted_rows}")
+
+                    if deleted_rows > 0:
+                        deleted += deleted_rows
 
                 except Exception as e:
 
                     st.error(f"{job_id}: {e}")
 
-            # ---------------------------------------------
-            # SUCCESS
-            # ---------------------------------------------
-
             st.success(f"Deleted {deleted} jobs")
 
-            # 🔥 FORCE UI REFRESH
             st.rerun()
 
-    # ---------------------------------------------------------
+    # =========================================================
     # RETRY
-    # ---------------------------------------------------------
+    # =========================================================
 
     with col2:
 
-        if st.button("🔁 Retry Failed Jobs"):
+        if st.button(
+                "🔁 Retry Failed Jobs",
+                key="retry_failed_jobs_btn"
+        ):
+
+            if not selected_jobs:
+                st.warning("Select at least one job.")
+                st.stop()
 
             retried = 0
 
             for job_id in selected_jobs:
 
                 try:
-                    ledger.retry_failed_scan(job_id)
+
+                    ledger.retry_failed_scan(
+                        int(job_id)
+                    )
+
                     retried += 1
 
                 except Exception as e:
+
                     st.error(f"{job_id}: {e}")
 
             st.success(f"Retried {retried} jobs")
 
-    # ---------------------------------------------------------
+            st.rerun()
+
+    # =========================================================
     # CANCEL
-    # ---------------------------------------------------------
+    # =========================================================
 
     with col3:
 
-        if st.button("⛔ Cancel Selected Jobs"):
+        if st.button(
+                "⛔ Cancel Selected Jobs",
+                key="cancel_selected_jobs_btn"
+        ):
+
+            if not selected_jobs:
+                st.warning("Select at least one job.")
+                st.stop()
 
             cancelled = 0
 
             for job_id in selected_jobs:
 
                 try:
-                    ledger.cancel_scan_job(job_id)
+
+                    ledger.cancel_scan_job(
+                        int(job_id)
+                    )
+
                     cancelled += 1
 
                 except Exception as e:
+
                     st.error(f"{job_id}: {e}")
 
             st.success(f"Cancelled {cancelled} jobs")
+
+            st.rerun()
