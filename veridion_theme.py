@@ -89,10 +89,10 @@ def apply_theme():
             display: block;
         }}
 
-        /* ── STRONG DUPLICATE PREVENTION (for Streamlit Cloud) ────────── */
+        /* Prevent multiple titles on Streamlit Cloud reruns */
         .veridion-sidebar-title + .veridion-sidebar-title,
         .veridion-sidebar-title ~ .veridion-sidebar-title,
-        [data-testid="stSidebar"] .veridion-sidebar-title:not(:first-of-type) {{
+        [data-testid="stSidebar"] .veridion-sidebar-title:not(:first-child) {{
             display: none !important;
         }}
 
@@ -494,14 +494,6 @@ def apply_theme():
             color: {WHITE} !important;
         }}
 
-        /* Sidebar buttons still transparent */
-        section[data-testid="stSidebar"] .stButton > button {{
-            background: transparent !important;
-            border: none !important;
-            color: {WHITE} !important;
-            box-shadow: none !important;
-        }}
-
         .stCodeBlock,
         .stCodeBlock pre,
         .stCodeBlock code,
@@ -514,7 +506,6 @@ def apply_theme():
             border-radius: 8px !important;
         }}
 
-        /* Inline code inside markdown */
         .stMarkdown code,
         .stMarkdown pre {{
             background: #EDF2F7 !important;
