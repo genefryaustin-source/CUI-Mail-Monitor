@@ -1,0 +1,14 @@
+ROLE_HIERARCHY = {
+    "ANALYST": 1,
+    "SENIOR_ANALYST": 2,
+    "MANAGER": 3,
+    "ADMIN": 4,
+}
+
+# Minimum role required to APPROVE each action
+APPROVAL_RULES = {
+    "ISOLATE_EVIDENCE": "SENIOR_ANALYST",
+    "QUARANTINE_CASE": "MANAGER",
+    "ESCALATE_TO_MANAGER": "SENIOR_ANALYST",
+    "REQUEST_REVIEW": "ANALYST",
+}
