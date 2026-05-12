@@ -3578,6 +3578,67 @@ class SQLiteLedger(Ledger):
             "reason": reason,
         }
 
+    # =========================================================
+    # DELETE SCAN JOB
+    # =========================================================
+
+    def delete_scan_job(self, job_id):
+
+        try:
+
+            with self._connect() as con:
+
+                # -----------------------------------------
+                # OPTIONAL: LOAD JOB FIRST
+                # -----------------------------------------
+
+                row = con.execute(
+                    """
+                    SELECT id, status
+                    FROM scan_queue
+                    WHERE id=?
+                    """,
+                    (job_id,)
+                ).fetchone()
+
+                if not row:
+                    return False
+
+                status = row[1]
+
+                # -----------------------------------------
+                # SAFETY CHECK
+                # -----------------------------------------
+
+                if status in ("PROCESSING", "RUNNING"):
+                    raise Exception(
+                        f"Cannot delete active job: {job_id}"
+                    )
+
+                # -----------------------------------------
+                # DELETE
+                # -----------------------------------------
+
+                con.execute(
+                    """
+                    DELETE FROM scan_queue
+                    WHERE id=?
+                    """,
+                    (job_id,)
+                )
+
+                con.commit()
+
+            print(f"🗑️ Deleted scan job: {job_id}")
+
+            return True
+
+        except Exception as e:
+
+            print(f"[LEDGER][DELETE JOB ERROR] {e}")
+
+            raise
+
 
 
 
