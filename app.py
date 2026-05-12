@@ -79,25 +79,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# MOBILE NAV
-# ---------------------------------------------------------
 
-mobile_page = st.radio(
-    "Mobile Navigation",
-    PAGES,
-    horizontal=True,
-    label_visibility="collapsed",
-    key="mobile_nav_bar"
-)
-
-mapped_page = PAGE_MAP[mobile_page]
-
-if mapped_page != st.session_state["page"]:
-
-    st.session_state["page"] = mapped_page
-
-    st.rerun()
 from veridion_theme import apply_theme
 apply_theme()
 
