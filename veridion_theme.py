@@ -74,7 +74,7 @@ def apply_theme():
         }}
         section[data-testid="stSidebar"] > div {{
             background-color: {NAVY} !important;
-            padding: 1.5rem 1rem;
+            padding: 1.2rem 1rem 0.5rem 1rem !important;
         }}
 
         /* ── VERIDION PRO TITLE (Top of Sidebar) ──────────────────────── */
@@ -83,14 +83,16 @@ def apply_theme():
             font-weight: 800 !important;
             color: {WHITE} !important;
             letter-spacing: -0.04em !important;
-            margin: 0 0 1.75rem 0 !important;
-            padding-bottom: 0.75rem !important;
+            margin: 0 0 1.6rem 0 !important;
+            padding-bottom: 0.7rem !important;
             border-bottom: 2px solid {GREEN} !important;
             display: block;
         }}
 
-        /* Prevent multiple titles on Streamlit Cloud reruns */
-        .veridion-sidebar-title + .veridion-sidebar-title {{
+        /* ── STRONG DUPLICATE PREVENTION (for Streamlit Cloud) ────────── */
+        .veridion-sidebar-title + .veridion-sidebar-title,
+        .veridion-sidebar-title ~ .veridion-sidebar-title,
+        [data-testid="stSidebar"] .veridion-sidebar-title:not(:first-of-type) {{
             display: none !important;
         }}
 
@@ -492,6 +494,14 @@ def apply_theme():
             color: {WHITE} !important;
         }}
 
+        /* Sidebar buttons still transparent */
+        section[data-testid="stSidebar"] .stButton > button {{
+            background: transparent !important;
+            border: none !important;
+            color: {WHITE} !important;
+            box-shadow: none !important;
+        }}
+
         .stCodeBlock,
         .stCodeBlock pre,
         .stCodeBlock code,
@@ -504,6 +514,7 @@ def apply_theme():
             border-radius: 8px !important;
         }}
 
+        /* Inline code inside markdown */
         .stMarkdown code,
         .stMarkdown pre {{
             background: #EDF2F7 !important;
