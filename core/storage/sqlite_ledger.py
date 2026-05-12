@@ -3595,7 +3595,7 @@ class SQLiteLedger(Ledger):
 
             cur = con.execute(
                 """
-                DELETE FROM scan_queue
+                DELETE FROM processing_queue
                 WHERE id = ?
                 """,
                 (job_id,)
