@@ -1,0 +1,16 @@
+# .streamlit/config.toml
+# ─────────────────────────────────────────────────────────────
+# Veridion Solutions colour theme for cui-mail-monitor
+# Place this file at  <project_root>/.streamlit/config.toml
+# ─────────────────────────────────────────────────────────────
+
+[theme]
+base                     = "light"
+primaryColor             = "#4CAF72"      # green accent — buttons, sliders, checkboxes
+backgroundColor          = "#FFFFFF"      # main content background
+secondaryBackgroundColor = "#F0F5FA"      # dataframe headers, input fills, alt rows
+                                          # NOTE: sidebar navy is applied via CSS in
+                                          # veridion_theme.py — NOT via this config,
+                                          # because setting navy here breaks dataframes
+textColor                = "#0D1B2A"      # body text
+font                     = "sans serif"
