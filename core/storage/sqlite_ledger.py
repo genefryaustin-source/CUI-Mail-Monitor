@@ -3584,60 +3584,30 @@ class SQLiteLedger(Ledger):
 
     def delete_scan_job(self, job_id):
 
-        try:
+        job_id = int(job_id)
 
-            with self._connect() as con:
+        print(f"🗑️ DELETE SCAN JOB: {job_id}")
 
-                # -----------------------------------------
-                # OPTIONAL: LOAD JOB FIRST
-                # -----------------------------------------
+        with self._connect() as con:
+            # -----------------------------------------
+            # DELETE FROM scan_queue
+            # -----------------------------------------
 
-                row = con.execute(
-                    """
-                    SELECT id, status
-                    FROM scan_queue
-                    WHERE id=?
-                    """,
-                    (job_id,)
-                ).fetchone()
+            cur = con.execute(
+                """
+                DELETE FROM scan_queue
+                WHERE id = ?
+                """,
+                (job_id,)
+            )
 
-                if not row:
-                    return False
+            deleted = cur.rowcount
 
-                status = row[1]
+            con.commit()
 
-                # -----------------------------------------
-                # SAFETY CHECK
-                # -----------------------------------------
+            print(f"✅ Rows deleted: {deleted}")
 
-                if status in ("PROCESSING", "RUNNING"):
-                    raise Exception(
-                        f"Cannot delete active job: {job_id}"
-                    )
-
-                # -----------------------------------------
-                # DELETE
-                # -----------------------------------------
-
-                con.execute(
-                    """
-                    DELETE FROM scan_queue
-                    WHERE id=?
-                    """,
-                    (job_id,)
-                )
-
-                con.commit()
-
-            print(f"🗑️ Deleted scan job: {job_id}")
-
-            return True
-
-        except Exception as e:
-
-            print(f"[LEDGER][DELETE JOB ERROR] {e}")
-
-            raise
+            return deleted
 
 
 
