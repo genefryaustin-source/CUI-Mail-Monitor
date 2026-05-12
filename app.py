@@ -1,7 +1,8 @@
 # app.py
 
 import streamlit as st
-
+import sys
+import traceback
 # ----------------------------------
 # 🔥 MUST BE FIRST STREAMLIT CALL
 # ----------------------------------
@@ -11,6 +12,24 @@ st.set_page_config(
     layout="wide",
 )
 
+
+try:
+    import slack_bolt
+    print("✅ slack_bolt OK")
+except Exception:
+    traceback.print_exc()
+
+try:
+    import slack_sdk
+    print("✅ slack_sdk OK")
+except Exception:
+    traceback.print_exc()
+
+try:
+    import google_auth_oauthlib
+    print("✅ google_auth_oauthlib OK")
+except Exception:
+    traceback.print_exc()
 # ----------------------------------
 # 🔥 NOW SAFE TO IMPORT EVERYTHING
 # ----------------------------------
