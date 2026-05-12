@@ -4,7 +4,7 @@ pandas>=2.2.0
 numpy>=1.26.0
 # PDF parsing: pure-python
 pypdf==4.0.2
-
+docx
 # OAuth / API clients
 google-auth==2.27.0
 google-auth-oauthlib==1.2.0
