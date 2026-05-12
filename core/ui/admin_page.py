@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 import uuid
-
+import time
 import json
 import streamlit as st
 from core.cases.playbook_loader import seed_playbooks
@@ -443,10 +443,19 @@ def render_admin_page(storage):
     # FILTERS
     # ---------------------------------------------------------
 
+    available_statuses = sorted(
+        [str(x) for x in df["status"].dropna().unique()]
+    )
+
+    default_statuses = [
+        s for s in ["FAILED", "CANCELLED"]
+        if s in available_statuses
+    ]
+
     statuses = st.multiselect(
         "Filter Status",
-        options=sorted(df["status"].dropna().unique()),
-        default=["FAILED", "CANCELLED"]
+        options=available_statuses,
+        default=default_statuses
     )
 
     show_empty_only = st.checkbox(
