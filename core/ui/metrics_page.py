@@ -10,9 +10,15 @@ import time
 
 from veridion_theme import apply_theme
 apply_theme()
-with st.sidebar:
-    st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
 
+# Use this block to show title only once
+if "title_shown" not in st.session_state:
+    st.session_state.title_shown = False
+
+with st.sidebar:
+    if not st.session_state.title_shown:
+        st.markdown('<h1 class="veridion-sidebar-title">Veridion Pro</h1>', unsafe_allow_html=True)
+        st.session_state.title_shown = True
 def compute_case_metrics(storage):
 
 
@@ -342,7 +348,10 @@ def render_metrics_page(storage: Any):
                 return "background-color: #52c41a; color: white;"  # green
             return ""
 
-        styled_df = sla_df.style.applymap(color_sla, subset=["sla_state"])
+        styled_df = sla_df.style.map(
+            color_sla,
+            subset=["sla_state"]
+        )
 
         st.dataframe(styled_df, use_container_width=True)
 
